@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import pymongo
+import urllib3
+import json
+
+http = urllib3.PoolManager()
+url = "https://api.coingecko.com/api/v3/exchange_rates"
+
+try:
+    response = http.request('GET', url)
+    data = json.loads(response.data)
+    fp = open('coingecko.json','w')
+    fp.write(str(data))
+    fp.close()
+    
+except:
+    print ("Error occured")
+
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+
+currencies_db = myclient["mydatabase"] # Created a database
+mycol = currencies_db["values"] # Created a collection
+
+print(myclient.list_database_names())
+
+x=mycol.insert_one(data)
+
+print(x.inserted_id)
+
+#for x in mycol.find():
+#  print(x)
+#
+
+myquery = { "type": { "$eq": "crypto"} }
+
+mydoc = mycol.find(myquery)
+
+
+for x in mydoc:
+  print(x)
+
+
